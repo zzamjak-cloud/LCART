@@ -161,7 +161,7 @@ GameObject:
   - component: {fileID: 8019064095271249979}
   - component: {fileID: 5511518104163459994}
   m_Layer: 5
-  m_Name: Animation
+  m_Name: AnimationOffset
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0

@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   m_RuntimePresets: []
   m_RuntimePresetsV2: []
-  m_UseHDRColorPicker: 1
+  m_UseHDRColorPicker: 0
   m_ShaderVariantCollection: {fileID: 0}
   m_ShaderVariantRegistry:
     m_OptionalShaders:
