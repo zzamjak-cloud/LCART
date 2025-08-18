@@ -8,8 +8,23 @@ namespace CAT.Utility
 {
     public class AnimationOffsetWindow : EditorWindow
     {
-        private int frameOffset = 0;
+        private float offsetValue = 0f; 
+        private bool isTimeInputMode = false; 
+
         private enum PropertyType { Position, Rotation, Scale }
+
+        // ==========================================================
+        // UI 레이아웃 제어를 위한 변수들
+        // ==========================================================
+        private float objectNameWidth = 120f;
+        private float inputFieldWidth = 100f;
+        private float modeButtonWidth = 50f;
+        private float resetButtonWidth = 50f;
+        private float actionButtonWidth = 150f;
+        private float sectionSpacing = 20f; // 섹션 간 여백
+
+        // 마지막으로 감지된 애니메이션 창의 루트 오브젝트
+        private GameObject lastKnownAnimRootObject;
 
         [MenuItem("CAT/Utility/Animation Offset Window")]
         private static void ShowWindow()
@@ -17,122 +32,158 @@ namespace CAT.Utility
             GetWindow<AnimationOffsetWindow>("Offset").Show();
         }
 
+        // ==========================================================
+        // [수정] OnEnable: 선택 변경 감지를 위한 이벤트 구독
+        // ==========================================================
         private void OnEnable()
         {
-            EditorApplication.update += RepaintOnFocus;
+            // 하이어라키 창 또는 프로젝트 창의 선택 변경을 감지
+            Selection.selectionChanged += Repaint;
+            // 애니메이션 창의 선택 변경 등 에디터의 지속적인 업데이트를 감지
+            EditorApplication.update += OnEditorUpdate;
         }
 
+        // ==========================================================
+        // [수정] OnDisable: 이벤트 구독 해제
+        // ==========================================================
         private void OnDisable()
         {
-            EditorApplication.update -= RepaintOnFocus;
+            Selection.selectionChanged -= Repaint;
+            EditorApplication.update -= OnEditorUpdate;
         }
 
-        private void RepaintOnFocus()
+        // ==========================================================
+        // [수정] OnEditorUpdate: 애니메이션 창의 선택 변경을 감지하여 UI 갱신
+        // ==========================================================
+        private void OnEditorUpdate()
         {
-            if (EditorWindow.focusedWindow == this)
+            // 애니메이션 창이 열려 있고, 그 안에서 선택된 루트 게임오브젝트가 변경되었는지 확인
+            object state = GetAnimationWindowState();
+            if (state != null)
             {
-                Repaint();
+                GameObject currentAnimRootObject = GetActiveRootGameObjectFromState(state);
+                if (currentAnimRootObject != lastKnownAnimRootObject)
+                {
+                    lastKnownAnimRootObject = currentAnimRootObject;
+                    Repaint();
+                }
             }
         }
-
+        
         private void OnGUI()
         {
-            // 윈도우 최소 크기 설정
-            this.minSize = new Vector2(120, 200);
-            
+            EditorGUILayout.BeginHorizontal(EditorStyles.toolbar, GUILayout.Height(22));
+
+            // 1. 선택된 오브젝트명 (고정 너비)
             GameObject selectedObject = Selection.activeGameObject;
             string selectedObjectName = (selectedObject != null) ? selectedObject.name : "None";
+            EditorGUILayout.LabelField(new GUIContent(selectedObjectName, "Currently selected GameObject"), GUILayout.Width(objectNameWidth));
+
+            // 유연한 공간을 두어 오른쪽 정렬 효과
+            // GUILayout.FlexibleSpace(); 
             
-            // 선택된 오브젝트 (축약된 텍스트)
-            EditorGUILayout.LabelField("Selected", EditorStyles.boldLabel);
-            EditorGUI.indentLevel++;
-            
-            // 긴 이름일 경우 축약
-            if (selectedObjectName.Length > 12)
-                selectedObjectName = selectedObjectName.Substring(0, 9) + "...";
+            // 2. 입력 모드 전환 버튼 (색상 및 텍스트 변경)
+            Color originalColor = GUI.backgroundColor;
+            string modeText;
+            if (isTimeInputMode)
+            {
+                // Time 모드일 때: 빨간색 버튼
+                GUI.backgroundColor = new Color(1.0f, 0.6f, 0.6f); 
+                modeText = "Time";
+            }
+            else
+            {
+                // Frame 모드일 때: 파란색 버튼
+                GUI.backgroundColor = new Color(0.5f, 0.7f, 1.0f); 
+                modeText = "Frame";
+            }
+
+            if (GUILayout.Button(new GUIContent(modeText, "Switch input between Frames and Seconds"), EditorStyles.toolbarButton, GUILayout.Width(modeButtonWidth)))
+            {
+                if (offsetValue != 0)
+                {
+                    object state = GetAnimationWindowState();
+                    AnimationClip activeClip = GetActiveAnimationClipFromState(state);
+                    // 클립이 있으면 해당 클립의 frameRate 사용, 없으면 기본값 60 사용
+                    float frameRate = (activeClip != null) ? activeClip.frameRate : 60f;
+
+                    // 현재 Time 모드 -> Frame 모드로 전환
+                    if (isTimeInputMode) 
+                    {
+                        offsetValue *= frameRate;
+                    }
+                    // 현재 Frame 모드 -> Time 모드로 전환
+                    else 
+                    {
+                        offsetValue /= frameRate;
+                    }
+                }
                 
-            EditorGUILayout.LabelField(selectedObjectName);
-            EditorGUI.indentLevel--;
-            EditorGUILayout.Space(5);
-
-            // 프레임 오프셋 (컴팩트 레이아웃)
-            EditorGUILayout.LabelField("Offset", EditorStyles.boldLabel);
+                isTimeInputMode = !isTimeInputMode; // 모드 전환
+                GUI.FocusControl(null); // 포커스를 해제하여 필드 값 즉시 갱신
+            }
             
-            // 버튼 스타일의 입력 필드
-            GUIStyle compactIntField = new GUIStyle(EditorStyles.numberField);
-            compactIntField.fixedHeight = 25;
-            
-            frameOffset = EditorGUILayout.IntField(frameOffset, compactIntField, GUILayout.Height(25));
-            
-            // 축약된 도움말
-            GUIStyle helpStyle = new GUIStyle(EditorStyles.helpBox);
-            helpStyle.fontSize = 9;
-            helpStyle.wordWrap = true;
-            EditorGUILayout.LabelField("Move loop cycle", helpStyle);
+            GUI.backgroundColor = originalColor; // GUI 색상 원상 복구
 
-            EditorGUILayout.Space(8);
+            // 3. 오프셋 입력 필드 (고정 너비)
+            string inputTooltip = isTimeInputMode ? "Time (s) offset value" : "Frame offset value";
+            offsetValue = EditorGUILayout.FloatField(new GUIContent("", inputTooltip), offsetValue, EditorStyles.toolbarTextField, GUILayout.Width(inputFieldWidth));
 
-            // 적용 버튼들 (축약된 텍스트)
-            GUI.backgroundColor = new Color(0.6f, 0.9f, 0.6f);
-            if (GUILayout.Button("Position", GUILayout.Height(22)))
+            // 섹션 간 여백
+            // GUILayout.Space(sectionSpacing);
+
+            
+
+            // 4. 리셋 버튼 (모드 버튼 바로 옆)
+            if (GUILayout.Button(new GUIContent("Reset", "Reset offset value to 0"), EditorStyles.toolbarButton, GUILayout.Width(resetButtonWidth)))
+            {
+                offsetValue = 0f;
+                GUI.FocusControl(null); 
+            }
+
+            // 섹션 간 여백
+            GUILayout.Space(sectionSpacing);
+
+            // 5. 적용 버튼들 (고정 너비)
+            //GUI.backgroundColor = new Color(0.6f, 0.9f, 0.6f);
+            if (GUILayout.Button(new GUIContent("Position", "Apply offset to Position curves"), EditorStyles.toolbarButton, GUILayout.Width(actionButtonWidth)))
             {
                 ApplyLoopOffset(PropertyType.Position);
             }
 
-            GUI.backgroundColor = new Color(0.9f, 0.9f, 0.6f);
-            if (GUILayout.Button("Rotation", GUILayout.Height(22)))
+            //GUI.backgroundColor = new Color(0.9f, 0.9f, 0.6f);
+            if (GUILayout.Button(new GUIContent("Rotation", "Apply offset to Rotation curves"), EditorStyles.toolbarButton, GUILayout.Width(actionButtonWidth)))
             {
                 ApplyLoopOffset(PropertyType.Rotation);
             }
 
-            GUI.backgroundColor = new Color(0.9f, 0.6f, 0.6f);
-            if (GUILayout.Button("Scale", GUILayout.Height(22)))
+            //GUI.backgroundColor = new Color(0.9f, 0.6f, 0.6f);
+            if (GUILayout.Button(new GUIContent("Scale", "Apply offset to Scale curves"), EditorStyles.toolbarButton, GUILayout.Width(actionButtonWidth)))
             {
                 ApplyLoopOffset(PropertyType.Scale);
             }
-            GUI.backgroundColor = Color.white;
+            GUI.backgroundColor = originalColor;
 
-            EditorGUILayout.Space(8);
-
-            // 리셋 버튼
-            if (GUILayout.Button("Reset", GUILayout.Height(20)))
-            {
-                frameOffset = 0;
-            }
+            EditorGUILayout.EndHorizontal();
         }
-
+        
         private void ApplyLoopOffset(PropertyType propertyType)
         {
-            if (frameOffset == 0) 
+            if (offsetValue == 0)
             {
-                Debug.LogWarning("프레임 오프셋이 0입니다. 오프셋 값을 설정해주세요.");
+                Debug.LogWarning("오프셋 값이 0입니다. 오프셋 값을 설정해주세요.");
                 return;
             }
 
             GameObject selectedObject = Selection.activeGameObject;
-            if (selectedObject == null) 
-            { 
-                Debug.LogError("오브젝트를 선택해주세요."); 
-                return; 
-            }
+            if (selectedObject == null) { Debug.LogError("오브젝트를 선택해주세요."); return; }
 
             object state = GetAnimationWindowState();
-            if (state == null)
-            {
-                Debug.LogError("애니메이션 윈도우가 열려있지 않습니다.");
-                return;
-            }
+            if (state == null) { Debug.LogError("애니메이션 윈도우가 열려있지 않습니다."); return; }
 
             AnimationClip activeClip = GetActiveAnimationClipFromState(state);
-            if (activeClip == null) 
-            { 
-                Debug.LogError("애니메이션 클립을 선택해주세요."); 
-                return; 
-            }
+            if (activeClip == null) { Debug.LogError("애니메이션 클립을 선택해주세요."); return; }
 
-            // ==========================================================
-            // [수정] 실제 에셋 경로를 가져와 원본 클립을 로드합니다.
-            // ==========================================================
             string clipPath = AssetDatabase.GetAssetPath(activeClip);
             if (string.IsNullOrEmpty(clipPath))
             {
@@ -140,40 +191,34 @@ namespace CAT.Utility
                 return;
             }
             AnimationClip sourceClip = AssetDatabase.LoadAssetAtPath<AnimationClip>(clipPath);
-            if (sourceClip == null)
-            {
-                Debug.LogError($"에셋 경로에서 클립을 불러오는 데 실패했습니다: {clipPath}");
-                return;
-            }
-            // ==========================================================
+            if (sourceClip == null) { Debug.LogError($"에셋 경로에서 클립을 불러오는 데 실패했습니다: {clipPath}"); return; }
 
             GameObject rootObject = GetActiveRootGameObjectFromState(state);
-            if (rootObject == null) 
-            { 
-                Debug.LogError("애니메이션 루트 오브젝트를 찾을 수 없습니다."); 
-                return; 
-            }
+            if (rootObject == null) { Debug.LogError("애니메이션 루트 오브젝트를 찾을 수 없습니다."); return; }
 
-            // 이제부터 activeClip 대신 sourceClip을 사용합니다.
             float loopDurationSecs = sourceClip.length;
-            if (loopDurationSecs <= 0) 
-            { 
-                Debug.LogError("클립 길이가 0보다 커야 합니다."); 
-                return; 
-            }
-            
+            if (loopDurationSecs <= 0) { Debug.LogError("클립 길이가 0보다 커야 합니다."); return; }
+
             AnimationClipSettings settings = AnimationUtility.GetAnimationClipSettings(sourceClip);
             if (!settings.loopTime)
             {
                 Debug.LogWarning("애니메이션이 Loop로 설정되어 있지 않습니다. Loop 애니메이션에만 사용하는 것을 권장합니다.");
             }
 
-            float timeOffset = (float)frameOffset / sourceClip.frameRate;
+            float timeOffset;
+            if (isTimeInputMode)
+            {
+                timeOffset = offsetValue;
+            }
+            else
+            {
+                timeOffset = offsetValue / sourceClip.frameRate;
+            }
+
             timeOffset = timeOffset % loopDurationSecs;
             if (timeOffset < 0)
                 timeOffset += loopDurationSecs;
 
-            // Undo 기록 대상을 sourceClip으로 변경합니다.
             Undo.RecordObject(sourceClip, "Apply Loop Animation Offset");
             EditorCurveBinding[] bindings = AnimationUtility.GetCurveBindings(sourceClip);
             bool anyCurveModified = false;
@@ -184,12 +229,11 @@ namespace CAT.Utility
             {
                 if (binding.path == selectedObjectPath && IsPropertyTypeMatch(binding.propertyName, propertyType))
                 {
-                    // 커브를 가져오고 설정할 때도 sourceClip을 사용합니다.
                     AnimationCurve curve = AnimationUtility.GetEditorCurve(sourceClip, binding);
                     if (curve == null || curve.keys.Length == 0) continue;
 
                     AnimationCurve newCurve = CreateOffsetCurve(curve, timeOffset, loopDurationSecs);
-                    
+
                     if (newCurve != null)
                     {
                         AnimationUtility.SetEditorCurve(sourceClip, binding, newCurve);
@@ -200,10 +244,9 @@ namespace CAT.Utility
 
             if (anyCurveModified)
             {
-                // 변경사항 저장을 위해 sourceClip을 dirty 처리합니다.
                 EditorUtility.SetDirty(sourceClip);
-                // AssetDatabase.SaveAssets()는 필요 없으므로 제거합니다.
-                Debug.Log($"루프 오프셋 적용 완료: {frameOffset} 프레임 ({timeOffset:F3}초)");
+                string logMessage = isTimeInputMode ? $"{offsetValue:F3}초" : $"{offsetValue} 프레임 ({timeOffset:F3}초)";
+                Debug.Log($"루프 오프셋 적용 완료: {logMessage}");
                 ForceRefreshAnimationWindow();
             }
             else
@@ -211,7 +254,7 @@ namespace CAT.Utility
                 Debug.LogWarning($"'{selectedObject.name}' 오브젝트에서 '{propertyType}' 속성의 애니메이션 커브를 찾지 못했습니다.");
             }
         }
-
+        
         private AnimationCurve CreateOffsetCurve(AnimationCurve originalCurve, float timeOffset, float loopDuration)
         {
             if (originalCurve.keys.Length == 0) return null;
