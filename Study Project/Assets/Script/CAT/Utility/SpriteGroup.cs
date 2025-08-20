@@ -10,10 +10,10 @@ using System;
 // OnTransformChildrenChanged 콜백을 사용하여 자식 구조가 변경되었을 때 업데이트 플래그를 설정
 // 데이터가 실제로 변경된 경우에만 직렬화 작업을 수행
 
-namespace CAT.Effects
+namespace CAT.Utility
 {
     [ExecuteInEditMode]
-    [AddComponentMenu("CAT/Effects/SpriteGroup")]
+    [AddComponentMenu("CAT/2D/SpriteGroup")]
     [DisallowMultipleComponent]
     public class SpriteGroup : MonoBehaviour
     {

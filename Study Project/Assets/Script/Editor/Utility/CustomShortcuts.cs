@@ -6,7 +6,7 @@ using TMPro;
 
 namespace CAT.Utility
 {
-    public class UIShortcuts
+    public class CustomShortcuts
     {
         // Image 생성 (Mac: Command+Option+I, Windows: Ctrl+Alt+I)
         [MenuItem("GameObject/UI/Custom Image %&i", false, 0)]
@@ -162,7 +162,7 @@ namespace CAT.Utility
                 else
                 {
                     // 선택된 오브젝트가 UI 계층에 없으면 씬에서 캔버스 찾기
-                    canvas = Object.FindObjectOfType<Canvas>();
+                    canvas = Object.FindFirstObjectByType<Canvas>();
                     if (canvas != null)
                     {
                         gameObject.transform.SetParent(canvas.transform, false);
@@ -182,7 +182,7 @@ namespace CAT.Utility
             else
             {
                 // 선택된 오브젝트가 없으면 캔버스 찾거나 생성
-                Canvas canvas = Object.FindObjectOfType<Canvas>();
+                Canvas canvas = Object.FindFirstObjectByType<Canvas>();
                 if (canvas != null)
                 {
                     gameObject.transform.SetParent(canvas.transform, false);
