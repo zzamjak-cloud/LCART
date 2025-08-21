@@ -39,6 +39,9 @@ namespace CAT.Utility
 
         private static void UpdateMarkedObjectsCache()
         {
+            if (EditorApplication.isPlayingOrWillChangePlaymode)
+                return;
+            
             childToParentMap.Clear();
             var currentPrefabStage = PrefabStageUtility.GetCurrentPrefabStage();
             IEnumerable<MonoBehaviour> scriptsToScan;
@@ -113,6 +116,9 @@ namespace CAT.Utility
 
         private static void HandleHierarchyItemGUI(int instanceID, Rect selectionRect)
         {
+            if (EditorApplication.isPlayingOrWillChangePlaymode)
+                return;
+            
             if (defaultIcon == null || prefabRootIcon == null)
             {
                 defaultIcon = EditorGUIUtility.IconContent("d_greenLight").image as Texture2D;
@@ -124,7 +130,7 @@ namespace CAT.Utility
                 bool hasPrefabRootParent = parentInfos.Any(p => p.isPrefabRoot);
                 Texture2D iconToDraw = hasPrefabRootParent ? prefabRootIcon : defaultIcon;
 
-                Rect iconRect = new Rect(selectionRect.xMax - 20f, selectionRect.y + (selectionRect.height - 12f) / 2, 12f, 12f);
+                Rect iconRect = new Rect(selectionRect.xMax - 20f, selectionRect.y + (selectionRect.height - 12f) / 2, 8f, 8f);
                 if (iconToDraw != null) GUI.DrawTexture(iconRect, iconToDraw);
 
                 Event currentEvent = Event.current;
