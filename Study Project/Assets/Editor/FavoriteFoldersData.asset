@@ -26,6 +26,12 @@ MonoBehaviour:
     - {fileID: 102900000, guid: 9c62325993b4b436a9cb856b4814c53e, type: 3}
     - {fileID: 102900000, guid: 2e73f02ad5fc8b641b5e9a27320705bd, type: 3}
     - {fileID: 102900000, guid: c0d6093970e4b4716ab5ca54c0912bbb, type: 3}
+  - name: VFX
+    isExpanded: 1
+    folders:
+    - {fileID: 102900000, guid: b129a282ee0753946a7a73e516c4d93c, type: 3}
+    - {fileID: 102900000, guid: a12910bb17455344d8f8ec27982309fd, type: 3}
+    - {fileID: 102900000, guid: 2b007819c750c41528d47666f057bfc1, type: 3}
   - name: Scripts
     isExpanded: 1
     folders:
