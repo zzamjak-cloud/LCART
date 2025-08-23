@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp-Editor:CAT.Utility:FavoriteFoldersData
   categories:
   - name: Prefabs
-    isExpanded: 1
+    isExpanded: 0
     folders:
     - {fileID: 102900000, guid: 0e3b204a60aa342169fde8f3a97a5dba, type: 3}
     - {fileID: 102900000, guid: 945f7ef1d1d97444db25a4ae0afecb81, type: 3}
@@ -26,3 +26,9 @@ MonoBehaviour:
     - {fileID: 102900000, guid: 9c62325993b4b436a9cb856b4814c53e, type: 3}
     - {fileID: 102900000, guid: 2e73f02ad5fc8b641b5e9a27320705bd, type: 3}
     - {fileID: 102900000, guid: c0d6093970e4b4716ab5ca54c0912bbb, type: 3}
+  - name: Scripts
+    isExpanded: 1
+    folders:
+    - {fileID: 102900000, guid: d444217e1cf5e4dd08c3e90e5a6846e3, type: 3}
+    - {fileID: 102900000, guid: 4327b2be0406c4462947320929412f9f, type: 3}
+    - {fileID: 102900000, guid: 47920d08675244b0fb6a16628289b15a, type: 3}
