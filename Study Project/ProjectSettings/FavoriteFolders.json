@@ -1,0 +1,22 @@
+{
+    "categories": [
+        {
+            "name": "Textures",
+            "isExpanded": true,
+            "folderGUIDs": [
+                "c0d6093970e4b4716ab5ca54c0912bbb",
+                "424752a459bbd48cd8e05841725f1132",
+                "4970f5ff4e1dc47f794d3d4a7ae315f0"
+            ]
+        },
+        {
+            "name": "Prefabs",
+            "isExpanded": true,
+            "folderGUIDs": [
+                "945f7ef1d1d97444db25a4ae0afecb81",
+                "424752a459bbd48cd8e05841725f1132",
+                "0e3b204a60aa342169fde8f3a97a5dba"
+            ]
+        }
+    ]
+}
