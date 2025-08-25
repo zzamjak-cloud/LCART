@@ -24,6 +24,22 @@
                 "424752a459bbd48cd8e05841725f1132",
                 "0e3b204a60aa342169fde8f3a97a5dba"
             ]
+        },
+        {
+            "name": "Script",
+            "isExpanded": true,
+            "folderGUIDs": [
+                "938b7aa1c6ef2cb43b4fcd9505c3d974",
+                "47920d08675244b0fb6a16628289b15a"
+            ]
+        },
+        {
+            "name": "Editor",
+            "isExpanded": true,
+            "folderGUIDs": [
+                "e01cb7b390f2544e792616768b9141fb",
+                "47920d08675244b0fb6a16628289b15a"
+            ]
         }
     ]
 }
