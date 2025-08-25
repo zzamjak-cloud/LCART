@@ -5,8 +5,15 @@
             "isExpanded": true,
             "folderGUIDs": [
                 "c0d6093970e4b4716ab5ca54c0912bbb",
-                "424752a459bbd48cd8e05841725f1132",
-                "4970f5ff4e1dc47f794d3d4a7ae315f0"
+                "424752a459bbd48cd8e05841725f1132"
+            ]
+        },
+        {
+            "name": "Atlas",
+            "isExpanded": true,
+            "folderGUIDs": [
+                "2e73f02ad5fc8b641b5e9a27320705bd",
+                "9c62325993b4b436a9cb856b4814c53e"
             ]
         },
         {
