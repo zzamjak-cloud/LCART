@@ -78,6 +78,7 @@ Shader "CAT/Effects/ColorReplaceUI"
             float4 _ClipRect;
             float4 _MainTex_ST;
 
+            // Vertex shader
             v2f vert(appdata_t v)
             {
                 v2f OUT;
@@ -90,6 +91,7 @@ Shader "CAT/Effects/ColorReplaceUI"
                 return OUT;
             }
 
+            // RGB to HSV
             float3 rgb2hsv(float3 c)
             {
                 float4 K = float4(0.0, -1.0 / 3.0, 2.0 / 3.0, -1.0);
@@ -100,6 +102,7 @@ Shader "CAT/Effects/ColorReplaceUI"
                 return float3(abs(q.z + (q.w - q.y) / (6.0 * d + e)), d / (q.x + e), q.x);
             }
 
+            // HSV to RGB
             float3 hsv2rgb(float3 c)
             {
                 c = float3(c.x, clamp(c.yz, 0.0, 1.0));
@@ -108,6 +111,7 @@ Shader "CAT/Effects/ColorReplaceUI"
                 return c.z * lerp(K.xxx, clamp(p - K.xxx, 0.0, 1.0), c.y);
             }
 
+            // Fragment shader
             fixed4 frag(v2f IN) : SV_Target
             {
                 half4 color = tex2D(_MainTex, IN.texcoord) * IN.color;
