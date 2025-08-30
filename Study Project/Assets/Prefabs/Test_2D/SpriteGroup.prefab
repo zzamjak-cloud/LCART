@@ -93,7 +93,6 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 6614615747646461160}
-  - component: {fileID: 1771093235543203967}
   m_Layer: 0
   m_Name: SpriteGroup
   m_TagString: Untagged
@@ -119,27 +118,6 @@ Transform:
   - {fileID: 5103518859744346872}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &1771093235543203967
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 5825580465009557105}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 56d1aa00979e24076a348fffc14c4282, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  groupAlpha: 1
-  dirtyFlag: 1
-  spriteData:
-  - spriteRenderer: {fileID: 6778645872913254157}
-    originalAlpha: 1
-  - spriteRenderer: {fileID: 8358602885261619877}
-    originalAlpha: 1
-  - spriteRenderer: {fileID: 322395617333220980}
-    originalAlpha: 1
 --- !u!1 &6398459059794254008
 GameObject:
   m_ObjectHideFlags: 0
